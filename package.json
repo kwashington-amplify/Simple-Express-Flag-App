@@ -1,0 +1,16 @@
+{
+  "name": "simple_express_app",
+  "version": "1.0.0",
+  "description": "As an incoming intern, I want to build a simple feature flag toggle app so that I can get comfortable with Node.js and Express before working on the real project.",
+  "license": "ISC",
+  "author": "Kennedy Washington",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
