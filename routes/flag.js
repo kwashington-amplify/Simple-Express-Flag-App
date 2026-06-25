@@ -9,12 +9,16 @@ router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));  
 });
 
+
 // API route to get the current flag state and a random quote
 router.get('/data', async (req, res) => {
-    const quote = await getRandomQuote();
-    res.json({ 
-        feature_enabled: getFlagState(),
-        quote });
+    getRandomQuote()
+        .then(quote => {
+            res.json({ feature_enabled: getFlagState(), quote});
+        })
+        .catch(error => {
+            res.status(500).json({error: 'Failed to retrieve flag state.'});
+        });
 });
 
 // API route to toggle the flag state with a reason
