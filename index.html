@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles.css">
+  <title>Simple Express App</title>
+</head>
+<body>
+    <h1>Flag Toggle App</h1> 
+    <div id="rounded-box">
+        <p id="quote"></p>
+        <p id="flag-status"></p>
+        <div id="button-container">
+            <button id="toggle-flag" onclick="splitButton();">Toggle Flag</button>
+            <button id="reason-button" style="display: none;" onclick="toggleReasonInput();">Reason for Toggling</button>
+            <input type="text" id="reason-input" placeholder="Enter reason" style="display: none;"/>
+        </div>
+    </div>
+    
+
+    <div id="history">
+        <h2>Flag History</h2>
+        <input type="text" id="search-bar" placeholder="Search Toggle History"/>
+        <div id="flag-history"></div>
+        <button onclick="deleteFlagHistory()">Clear History</button>
+    </div>
+
+</body>
+<footer>
+    <p>Created by Kennedy Washington</p>
+</footer>
+<script>
+    let historyData = [];
+
+    async function fetchData() {
+        try {
+            const response = await fetch('/api/flag/data');
+            const data = await response.json();
+            document.getElementById('quote').textContent = data.quote;
+
+            document.getElementById('flag-status').textContent = `Flag is ${data.feature_enabled ? 'ON' : 'OFF'}`;
+            document.getElementById('flag-status').className = data.feature_enabled ? 'enabled' : 'disabled';
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    async function toggleFlagStatus() {
+        try {
+            const reasonInput = document.getElementById('reason-input').value || 'No reason provided';
+            const response = await fetch('/api/flag/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reasonInput })
+            });
+            const data = await response.json();
+            document.getElementById('flag-status').textContent = `Flag is ${data.feature_enabled ? 'ON' : 'OFF'}`;
+            document.getElementById('flag-status').className = data.feature_enabled ? 'enabled' : 'disabled';
+            fetchFlagHistory();
+        } catch (error) {
+            console.error('Error toggling flag status:', error);
+        }
+    }
+
+
+    async function fetchFlagHistory() {
+        try {
+            const response = await fetch('/api/flag/history');
+            const data = await response.json();
+            historyData = data.history;
+            displayHistory(historyData);
+        } catch (error) {
+            console.error('Error fetching flag history:', error);
+        }
+    }
+
+    async function deleteFlagHistory() {
+        try {
+            await fetch('/api/flag/history', { method: 'DELETE' });
+            fetchFlagHistory();
+        } catch (error) {
+            console.error('Error deleting flag history:', error);
+        }
+    }
+
+    fetchData();
+    fetchFlagHistory();
+
+    function toggleReasonInput() {
+        const reasonInput = document.getElementById('reason-input');
+        reasonInput.style.display = reasonInput.style.display === 'none' ? 'inline-block' : 'none';
+    }
+
+    function splitButton() {
+        const mainButton = document.getElementById('toggle-flag');
+        mainButton.innerText = 'Proceed without Reason';
+        mainButton.onclick = () => {
+            toggleFlagStatus();
+            mainButton.innerText = 'Toggle Flag';
+            mainButton.onclick = splitButton;
+            const reasonButton = document.getElementById('reason-button');
+            reasonButton.style.display = 'none';
+        };
+
+        const reasonButton = document.getElementById('reason-button');
+        reasonButton.style.display = 'inline-block';
+        reasonButton.innerText = 'Toggle with Reason';
+        reasonButton.onclick = () => {
+            toggleReasonInput();
+            const reasonInput = document.getElementById('reason-input');
+            reasonButton.innerHTML = 'Click Enter to Submit Reason';
+            reasonInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    toggleFlagStatus();
+                    reasonInput.value = '';
+                    toggleReasonInput();
+                    mainButton.innerText = 'Toggle Flag';
+                    mainButton.onclick = splitButton;
+                    reasonButton.style.display = 'none';
+                    reasonInput.removeEventListener('keypress', arguments.callee);
+                    reasonInput.style.display = 'none';
+                }
+            });
+        };
+    }
+
+    function displayHistory(history) {
+        const historyElement = document.getElementById('flag-history');
+        historyElement.innerHTML = '';
+        if (history.length === 0) {
+            historyElement.innerHTML = 'No history available';
+            return;
+        }
+
+        [...history].reverse().forEach(entry => {
+            const entryElement = document.createElement('p');
+            entryElement.textContent = `${entry.timestamp}: Flag was turned ${entry.status ? 'ON' : 'OFF'} — ${entry.reason}`;
+            historyElement.appendChild(entryElement);
+        });
+    }
+
+    function searchHistory(query) {
+        const lowerQuery = query.toLowerCase();
+
+        const filtered = historyData.filter(flag =>
+            flag.reason.toLowerCase().includes(lowerQuery) ||
+            (flag.status ? 'on' : 'off').includes(lowerQuery) ||
+            flag.timestamp.toLowerCase().includes(lowerQuery)
+        );
+
+        displayHistory(filtered);
+    }
+
+    document.getElementById('search-bar').addEventListener('input', (e) => {
+        searchHistory(e.target.value);
+    });
+
+</script>
+</html>
