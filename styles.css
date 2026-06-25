@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+
+body {
+    font-family: 'Raleway', sans-serif;
+    background-color: #2b2a3f;
+    color: #eae0d1;
+    text-align: center;
+    background-image: radial-gradient(circle, #3c395d 3px, transparent 2px);
+    background-size: 50px 50px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 4em;
+}
+
+h1, h2, h3 {
+    letter-spacing: 2px;
+}
+
+#quote {
+    font-size: 1.5em;
+    margin: 20px 0;
+}
+
+#flag-status {
+    font-size: 2em;
+    font-style: italic;
+
+    margin: 10px 15px;
+    background-color: #ffffffea;
+    width: 30%;
+    text-align: center;
+    margin: 0 auto;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+button {
+    background-color: #ffffffe8;
+    color: #2b2a3f;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+button:hover {
+    background-color: #ffffff;
+}
+
+#rounded-box {
+    background-color: #713b57;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 60%;
+    text-align: center;
+    border: 2px solid #eae0d1;
+    margin-bottom: 25px;
+}
+
+input {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    border: 1px solid #eae0d1;
+    font-size: 1em;
+}
+
+#history {
+    background-color: #ffebf550;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 60%;
+    text-align: center;
+    font-size: 1.5em;
+    border: 2px solid #eae0d1;
+}
+
+.enabled {
+    color: #228213;
+}
+
+.disabled {
+    color: #c91227;
+}
