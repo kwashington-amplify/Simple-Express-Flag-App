@@ -21,6 +21,7 @@
 
     <div id="history">
         <h2>Flag History</h2>
+        <input type="text" id="search-bar" placeholder="Search Toggle History"/>
         <div id="flag-history"></div>
         <button onclick="deleteFlagHistory()">Clear History</button>
     </div>
@@ -30,24 +31,18 @@
     <p>Created by Kennedy Washington</p>
 </footer>
 <script>
-    async function fetchQuote() {
+    let historyData = [];
+
+    async function fetchData() {
         try {
             const response = await fetch('/api/flag/data');
             const data = await response.json();
             document.getElementById('quote').textContent = data.quote;
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    }
 
-    async function fetchFlagStatus() {
-        try {
-            const response = await fetch('/api/flag/data');
-            const data = await response.json();
             document.getElementById('flag-status').textContent = `Flag is ${data.feature_enabled ? 'ON' : 'OFF'}`;
             document.getElementById('flag-status').className = data.feature_enabled ? 'enabled' : 'disabled';
         } catch (error) {
-            console.error('Error fetching flag status:', error);
+            console.error('Error fetching data:', error);
         }
     }
 
@@ -75,18 +70,8 @@
         try {
             const response = await fetch('/api/flag/history');
             const data = await response.json();
-            const historyElement = document.getElementById('flag-history');
-            historyElement.innerHTML = '';
-            if(data.history.length === 0) {
-                historyElement.innerHTML = 'No history available.';
-                return;
-            }
-
-            [...data.history].reverse().forEach(entry => {
-                const entryElement = document.createElement('p');
-                entryElement.textContent = `${entry.timestamp}: Flag was turned ${entry.status ? 'ON' : 'OFF'} — ${entry.reason}`;
-                historyElement.appendChild(entryElement);
-            });
+            historyData = data.history;
+            displayHistory(historyData);
         } catch (error) {
             console.error('Error fetching flag history:', error);
         }
@@ -101,8 +86,7 @@
         }
     }
 
-    fetchQuote();
-    fetchFlagStatus();
+    fetchData();
     fetchFlagHistory();
 
     function toggleReasonInput() {
@@ -142,6 +126,37 @@
             });
         };
     }
+
+    function displayHistory(history) {
+        const historyElement = document.getElementById('flag-history');
+        historyElement.innerHTML = '';
+        if (history.length === 0) {
+            historyElement.innerHTML = 'No history available';
+            return;
+        }
+
+        [...history].reverse().forEach(entry => {
+            const entryElement = document.createElement('p');
+            entryElement.textContent = `${entry.timestamp}: Flag was turned ${entry.status ? 'ON' : 'OFF'} — ${entry.reason}`;
+            historyElement.appendChild(entryElement);
+        });
+    }
+
+    function searchHistory(query) {
+        const lowerQuery = query.toLowerCase();
+
+        const filtered = historyData.filter(flag =>
+            flag.reason.toLowerCase().includes(lowerQuery) ||
+            (flag.status ? 'on' : 'off').includes(lowerQuery) ||
+            flag.timestamp.toLowerCase().includes(lowerQuery)
+        );
+
+        displayHistory(filtered);
+    }
+
+    document.getElementById('search-bar').addEventListener('input', (e) => {
+        searchHistory(e.target.value);
+    });
 
 </script>
 </html>
