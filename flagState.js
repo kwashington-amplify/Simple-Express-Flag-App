@@ -21,10 +21,7 @@ async function getFlagState() {
 
 // Function to toggle the state of the flag and record the reason and timestamp
 async function toggleFlagState(reason) {
-    const client = getClient();
-    const getCommand = new GetParameterCommand({ Name: FLAG_NAME});
-    const response = await client.send(getCommand);
-    const currentState = response.Parameter.Value === "true";
+    const currentState =  await getFlagState()
 
     const newState = !currentState;
 
