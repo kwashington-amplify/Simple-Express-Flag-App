@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const { getRandomQuote } = require('../quote');
 const { getFlagState, toggleFlagState, getFlagHistory, deleteFlagHistory } = require('../flagState'); // Import flag state management functions
+const { getRandomImg } = require('../images');
 const router = express.Router(); // Create a router for flag-related routes
 
 // Route to serve the main page
@@ -9,22 +10,20 @@ router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'index.html'));  
 });
 
-
 // API route to get the current flag state and a random quote
 router.get('/data', async (req, res) => {
-    getRandomQuote()
-        .then(quote => {
-            res.json({ feature_enabled: getFlagState(), quote});
-        })
-        .catch(error => {
-            res.status(500).json({error: 'Failed to retrieve flag state.'});
-        });
+    try {
+        const [quote, flagState] = await Promise.all([getRandomQuote(), getFlagState()]);
+        return res.json({ feature_enabled: flagState, quote});
+    } catch(error) {
+        res.status(500).json({error: 'Failed to retrieve flag state.'});
+    }
 });
 
 // API route to toggle the flag state with a reason
-router.post('/toggle', (req, res) => {
+router.post('/toggle', async (req, res) => {
     const { reason } = req.body;
-    const newFlagState = toggleFlagState(reason);
+    const newFlagState = await toggleFlagState(reason);
     res.json({ feature_enabled: newFlagState });
 });
 
@@ -40,6 +39,18 @@ router.delete('/history', (req, res) => {
     deleteFlagHistory();
     res.json({ message: 'Flag history deleted.' });
 });
+
+router.get('/showimg', async (req, res) => {
+    try {
+        const img = await getRandomImg();
+        res.json(img);
+    } catch(error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch image' });
+    }
+    
+    
+})
 
 // Export the router to be used in app.js
 module.exports = router;

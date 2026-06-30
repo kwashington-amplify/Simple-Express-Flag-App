@@ -8,6 +8,10 @@
 </head>
 <body>
     <h1>Flag Toggle App</h1> 
+    <div id="random-img-container">
+        <img id="random-img" src="" alt=""/>
+        <p id="img-title"></p>
+    </div>
     <div id="rounded-box">
         <p id="quote"></p>
         <p id="flag-status"></p>
@@ -86,8 +90,21 @@
         }
     }
 
+    async function fetchRandomImg() {
+        try {
+            const response = await fetch('/api/flag/showimg');
+            const { image_url, title } = await response.json();
+            document.getElementById('random-img').src = image_url;
+            document.getElementById('random-img').alt = title;
+            document.getElementById('img-title').textContent = title;
+        } catch (error) {
+            console.error('Error fetching image: ', error);
+        }
+    }
+
     fetchData();
     fetchFlagHistory();
+    fetchRandomImg();
 
     function toggleReasonInput() {
         const reasonInput = document.getElementById('reason-input');
@@ -157,6 +174,9 @@
     document.getElementById('search-bar').addEventListener('input', (e) => {
         searchHistory(e.target.value);
     });
+
+
+    
 
 </script>
 </html>
