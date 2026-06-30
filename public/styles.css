@@ -71,6 +71,11 @@ input {
     font-size: 1em;
 }
 
+img {
+    max-width: 100%;
+    max-height: 50%;
+}
+
 #history {
     background-color: #ffebf550;
     border-radius: 15px;
